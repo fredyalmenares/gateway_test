@@ -1,23 +1,12 @@
-FROM maven:3.6.3-jdk-11 AS builder
-WORKDIR /workdir/server
-COPY pom.xml /workdir/server/pom.xml
-RUN mvn dependency:go-offline
+FROM maven:3.6.3-jdk-11 as maven_build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn clean package -Dmaven.main.skip -Dmaven.test.skip && rm -r target
+COPY src ./src
+RUN mvn clean package -Dmaven.test.skip
 
-COPY src /workdir/server/src
-RUN mvn clean install
-RUN mkdir  -p target/depency
-WORKDIR /workdir/server/target/dependency
-RUN jar -xf ../*.jar
-
-FROM openjdk:11.0.4-jre-slim
-
-EXPOSE 8080
-VOLUME /tmp
-ARG DEPENDENCY=/workdir/server/target/dependency
-COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
+FROM openjdk:11-jre-slim as app_server
+COPY --from=maven_build /app/target/*.jar /app/target/app.jar
 ADD entrypoint.sh /entrypoint.sh
-RUN apt-get update && apt-get install -y curl && mkdir /logs && touch /logs/cobranza.log
 ENTRYPOINT ["/bin/bash"]
 CMD ["/entrypoint.sh"]

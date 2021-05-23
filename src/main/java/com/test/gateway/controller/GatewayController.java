@@ -4,6 +4,7 @@ import com.test.gateway.request.CreateGatewayRequest;
 import com.test.gateway.request.UpdateGatewayRequest;
 import com.test.gateway.response.GatewayCollectionResponse;
 import com.test.gateway.response.GatewaySingleResponse;
+import com.test.gateway.service.GatewayService;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,12 @@ import javax.validation.Valid;
 @Validated
 public class GatewayController {
 
+    private GatewayService gatewayService;
+
+    public GatewayController(GatewayService gatewayService) {
+        this.gatewayService = gatewayService;
+    }
+
     @GetMapping
     @ApiOperation(value = "Get all stored gateways.", tags = {"Gateway"})
     @ResponseStatus(HttpStatus.OK)
@@ -30,7 +37,7 @@ public class GatewayController {
     @ApiOperation(value = "Get one gateway by its serial.", tags = {"Gateway"})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewaySingleResponse> getGatewayBySerial(@PathVariable(name = "serial") String serial) {
-        GatewaySingleResponse response = new GatewaySingleResponse();
+        GatewaySingleResponse response = new GatewaySingleResponse(this.gatewayService.findGatewayBySerialOrFail(serial));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -86,7 +93,7 @@ public class GatewayController {
                     }))})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewaySingleResponse> addPeripheral(@PathVariable(name = "serial") String serial, @PathVariable(name = "uid") Long uid) {
-        GatewaySingleResponse response = new GatewaySingleResponse();
+        GatewaySingleResponse response = new GatewaySingleResponse(this.gatewayService.addPeripheralToGateway(serial, uid));
         response.setMessage("Peripheral added successfully.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

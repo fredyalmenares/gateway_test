@@ -1,11 +1,13 @@
 package com.test.gateway.service;
 
+import com.test.gateway.GatewayApplication;
 import com.test.gateway.entity.PeripheralEntity;
 import com.test.gateway.repository.PeripheralRepository;
 import com.test.gateway.request.CreatePeripheralRequest;
 import com.test.gateway.request.UpdatePeripheralRequest;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
 
 @Service
@@ -18,8 +20,11 @@ public class PeripheralService {
     }
 
     public PeripheralEntity findPeripheralBySerialOrFail(Long uid){
-        //TODO
-        return null;
+        return this.peripheralRepository.findById(uid).orElseThrow(() -> new EntityNotFoundException("Peripheral"));
+    }
+
+    public PeripheralEntity savePeripheralEntity(PeripheralEntity peripheralEntity){
+        return this.peripheralRepository.saveAndFlush(peripheralEntity);
     }
 
     public Collection<PeripheralEntity> findAll(){

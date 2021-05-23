@@ -1,8 +1,11 @@
 package com.test.gateway.service;
 
 import com.test.gateway.entity.GatewayEntity;
+import com.test.gateway.entity.PeripheralEntity;
 import com.test.gateway.exception.EntityAlreadyExistsException;
+import com.test.gateway.exception.GatewayDoesNotHasPeripheralException;
 import com.test.gateway.exception.GatewayHasPeripheralException;
+import com.test.gateway.exception.GatewayMaxPeripheralsException;
 import com.test.gateway.repository.GatewayRepository;
 import com.test.gateway.request.CreateGatewayRequest;
 import com.test.gateway.request.UpdateGatewayRequest;
@@ -57,20 +60,34 @@ public class GatewayService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteGateway(String serial) {
         GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
-        if(gatewayEntity.getPeripherals().size() > 0){
+        if (gatewayEntity.getPeripherals().size() > 0) {
             throw new GatewayHasPeripheralException(gatewayEntity.getSerial());
         }
         this.gatewayRepository.deleteById(serial);
     }
 
-    public List<GatewayEntity> addPeripheralToGateway(String serial, Long uid) {
-        //TODO
-        return null;
+    public GatewayEntity addPeripheralToGateway(String serial, Long uid) {
+        PeripheralEntity peripheralEntity = this.peripheralService.findPeripheralBySerialOrFail(uid);
+        GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
+        if (gatewayEntity.getPeripherals().size() >= 10) {
+            throw new GatewayMaxPeripheralsException(gatewayEntity.getSerial());
+        }
+        gatewayEntity.getPeripherals().add(peripheralEntity);
+        peripheralEntity.setGateway(gatewayEntity);
+        this.peripheralService.savePeripheralEntity(peripheralEntity);
+        return this.gatewayRepository.saveAndFlush(gatewayEntity);
     }
 
-    public List<GatewayEntity> removePeripheralFromGateway(String serial, Long uid) {
-        //TODO
-        return null;
+    public GatewayEntity removePeripheralFromGateway(String serial, Long uid) {
+        GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
+        PeripheralEntity peripheralEntity = gatewayEntity
+                .getPeripherals()
+                .stream()
+                .filter(peripheralEntity1 -> peripheralEntity1.getUid().equals(uid))
+                .findFirst().orElseThrow(() -> new GatewayDoesNotHasPeripheralException(serial, uid));
+        peripheralEntity.setGateway(null);
+        this.peripheralService.savePeripheralEntity(peripheralEntity);
+        return this.gatewayRepository.saveAndFlush(gatewayEntity);
     }
 
 

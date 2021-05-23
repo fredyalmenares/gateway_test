@@ -3,7 +3,6 @@ package com.test.gateway.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,7 +12,6 @@ import java.time.Instant;
 @Entity
 @Table(name = "peripheral", schema = "public")
 @DynamicInsert
-@DynamicUpdate
 public class PeripheralEntity  implements Serializable {
     private Long uid;
     private String vendor;
@@ -43,6 +41,7 @@ public class PeripheralEntity  implements Serializable {
         this.vendor = vendor;
     }
 
+
     @Basic
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
@@ -64,8 +63,8 @@ public class PeripheralEntity  implements Serializable {
         this.status = status;
     }
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name="gateway_serial" , nullable=true, unique = false)
+    @ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name="gateway_serial" )
     @JsonIgnore
     public GatewayEntity getGateway() {
         return gateway;
@@ -78,5 +77,16 @@ public class PeripheralEntity  implements Serializable {
     @PrePersist
     public void onPrePersist() {
         setCreatedAt(Timestamp.from(Instant.now()));
+    }
+
+    @Override
+    public String toString() {
+        return "PeripheralEntity{" +
+                "uid=" + uid +
+                ", vendor='" + vendor + '\'' +
+                ", createdAt=" + createdAt +
+                ", status='" + status + '\'' +
+                ", gateway_serial='" + gateway.getSerial() + '\'' +
+                '}';
     }
 }

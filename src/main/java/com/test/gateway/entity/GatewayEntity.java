@@ -4,7 +4,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "gateway", schema = "public")
@@ -15,7 +16,7 @@ public class GatewayEntity {
     private String name;
     private String address;
 
-    private Collection<PeripheralEntity> peripherals;
+    private Set<PeripheralEntity> peripherals = new HashSet<>();
 
     @Id
     @Column(name = "serial", nullable = false)
@@ -47,12 +48,22 @@ public class GatewayEntity {
         this.address = address;
     }
 
-    @OneToMany(mappedBy="uid", targetEntity = PeripheralEntity.class)
-    public Collection<PeripheralEntity> getPeripherals() {
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="gateway", targetEntity = PeripheralEntity.class, cascade = CascadeType.ALL)
+    public Set<PeripheralEntity> getPeripherals() {
         return peripherals;
     }
 
-    public void setPeripherals(Collection<PeripheralEntity> peripherals) {
+    public void setPeripherals(Set<PeripheralEntity> peripherals) {
         this.peripherals = peripherals;
+    }
+
+    @Override
+    public String toString() {
+        return "GatewayEntity{" +
+                "serial='" + serial + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", peripherals=" + peripherals +
+                '}';
     }
 }

@@ -1,6 +1,7 @@
 package com.test.gateway.config;
 
 import com.test.gateway.GatewayApplication;
+import com.test.gateway.exception.EntityAlreadyExistsException;
 import com.test.gateway.response.BadRequestResponse;
 import com.test.gateway.response.NotFoundResponse;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +33,12 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {EntityNotFoundException.class})
-    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException e) {
+    protected ResponseEntity<NotFoundResponse> handleEntityNotFoundException(EntityNotFoundException e) {
         return new ResponseEntity<>(new NotFoundResponse(e.getLocalizedMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {EntityAlreadyExistsException.class})
+    protected ResponseEntity<BadRequestResponse> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
+        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage())), HttpStatus.NOT_FOUND);
     }
 }

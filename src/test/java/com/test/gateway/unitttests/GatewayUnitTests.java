@@ -1,6 +1,7 @@
 package com.test.gateway.unitttests;
 
 import com.test.gateway.entity.GatewayEntity;
+import com.test.gateway.exception.EntityAlreadyExistsException;
 import com.test.gateway.request.CreateGatewayRequest;
 import com.test.gateway.service.GatewayService;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class GatewayUnitTests {
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findGatewayBySerialOrFail__then_return_gateway() {
         for (int i = 1; i <= GATEWAY_COUNT; i++) {
-            String serial = i+"ABC";
+            String serial = i + "ABC";
             String address = "192.147.25." + i;
             String name = "Gateway" + i;
             GatewayEntity gateway = this.gatewayService.findGatewayBySerialOrFail(serial);
@@ -43,7 +44,7 @@ public class GatewayUnitTests {
     @Test
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    public void when_call_findGatewayBySerialOrFail__then_expect_Exception() {
+    public void when_call_findGatewayBySerialOrFail__then_expect_EntityNotFoundException() {
         for (int i = 1; i <= GATEWAY_COUNT; i++) {
             String serial = "DONT EXISTS" + i;
             Exception exception = assertThrows(EntityNotFoundException.class, () -> {
@@ -69,7 +70,7 @@ public class GatewayUnitTests {
             int i = 1;
         };
         gatewayEntityList.forEach(gatewayEntity -> {
-            String serial = ref.i +"ABC";
+            String serial = ref.i + "ABC";
             String address = "192.147.25." + ref.i;
             String name = "Gateway" + ref.i;
             assertThat(gatewayEntity).isNotNull();
@@ -85,14 +86,36 @@ public class GatewayUnitTests {
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_createGateway__then_return_created_gateway() {
         for (int i = 1; i <= GATEWAY_COUNT; i++) {
-            String serial = i+"ABC";
+            String serial = i + "ABC";
             String address = "192.147.25." + i;
             String name = "Gateway" + i;
-            GatewayEntity gateway = this.gatewayService.createGateway(new CreateGatewayRequest(serial, name, address));
+            GatewayEntity gateway = null;
+            try {
+                gateway = this.gatewayService.createGateway(new CreateGatewayRequest(serial, name, address));
+            } catch (EntityAlreadyExistsException e) {
+                e.printStackTrace();
+            }
             assertThat(gateway).isNotNull();
             assertThat(gateway.getSerial()).isEqualTo(serial);
             assertThat(gateway.getAddress()).isEqualTo(address);
             assertThat(gateway.getName()).isEqualTo(name);
+        }
+    }
+
+    @Test
+    @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_createGateway__then_expect_EntityAlreadyExistsException() {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = i + "ABC";
+            String address = "192.147.25." + i;
+            String name = "Gateway" + i;
+            Exception exception = assertThrows(EntityAlreadyExistsException.class, () -> {
+                this.gatewayService.createGateway(new CreateGatewayRequest(serial, name, address));
+            });
+            String expectedMessage = "Gateway with serial";
+            String actualMessage = exception.getMessage();
+            assertThat(actualMessage).contains(expectedMessage);
         }
     }
 

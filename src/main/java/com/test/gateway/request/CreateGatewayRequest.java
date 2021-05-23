@@ -25,6 +25,12 @@ public class CreateGatewayRequest {
     public CreateGatewayRequest() {
     }
 
+    public CreateGatewayRequest(String serial, String name, String address) {
+        this.serial = serial;
+        this.name = name;
+        this.address = address;
+    }
+
     public String getSerial() {
         return serial;
     }

@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest()
 public class GatewayUnitTests {
+    int GATEWAY_COUNT = 5;
+
     @Autowired
     GatewayService gatewayService;
 
@@ -22,11 +27,11 @@ public class GatewayUnitTests {
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findGatewayBySerialOrFail__then_return_gateway() {
-        for (int i = 1; i <= 5; i++) {
-            String serial = "ABC" + i;
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = i+"ABC";
             String address = "192.147.25." + i;
             String name = "Gateway" + i;
-            GatewayEntity gateway = gatewayService.findGatewayBySerialOrFail(serial);
+            GatewayEntity gateway = this.gatewayService.findGatewayBySerialOrFail(serial);
             assertThat(gateway).isNotNull();
             assertThat(gateway.getSerial()).isEqualTo(serial);
             assertThat(gateway.getAddress()).isEqualTo(address);
@@ -38,16 +43,40 @@ public class GatewayUnitTests {
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findGatewayBySerialOrFail__then_expect_Exception() {
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
             String serial = "DONT EXISTS" + i;
-            GatewayEntity gateway = gatewayService.findGatewayBySerialOrFail(serial);
             Exception exception = assertThrows(EntityNotFoundException.class, () -> {
-                gatewayService.findGatewayBySerialOrFail(serial);
+                this.gatewayService.findGatewayBySerialOrFail(serial);
             });
             String expectedMessage = "Gateway";
             String actualMessage = exception.getMessage();
             assertThat(actualMessage).isEqualTo(expectedMessage);
         }
+    }
+
+    @Test
+    @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_findAll__then_return_gateway_collection() {
+        List<GatewayEntity> gatewayEntityList = this.gatewayService
+                .findAll()
+                .stream()
+                .sorted(Comparator.comparing(gatewayEntity -> (int) gatewayEntity.getSerial().charAt(0)))
+                .collect(Collectors.toList());
+        assertThat(gatewayEntityList.size()).isEqualTo(5);
+        var ref = new Object() {
+            int i = 1;
+        };
+        gatewayEntityList.forEach(gatewayEntity -> {
+            String serial = ref.i +"ABC";
+            String address = "192.147.25." + ref.i;
+            String name = "Gateway" + ref.i;
+            assertThat(gatewayEntity).isNotNull();
+            assertThat(gatewayEntity.getSerial()).isEqualTo(serial);
+            assertThat(gatewayEntity.getAddress()).isEqualTo(address);
+            assertThat(gatewayEntity.getName()).isEqualTo(name);
+            ref.i++;
+        });
     }
 
 }

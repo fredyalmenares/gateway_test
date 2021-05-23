@@ -6,7 +6,8 @@ import com.test.gateway.request.CreateGatewayRequest;
 import com.test.gateway.request.UpdateGatewayRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @Service
 public class GatewayService {
@@ -20,13 +21,11 @@ public class GatewayService {
     }
 
     public GatewayEntity findGatewayBySerialOrFail(String serial){
-        //TODO
-        return null;
+        return this.gatewayRepository.findById(serial).orElseThrow(() -> new EntityNotFoundException("Gateway"));
     }
 
-    public Collection<GatewayEntity> findAll(){
-        //TODO
-        return null;
+    public List<GatewayEntity> findAll(){
+        return this.gatewayRepository.findAll();
     }
 
     public GatewayEntity createGateway(CreateGatewayRequest createGatewayRequest){
@@ -44,12 +43,12 @@ public class GatewayService {
         return true;
     }
 
-    public Collection<GatewayEntity> addPeripheralToGateway(String serial, Long uid){
+    public List<GatewayEntity> addPeripheralToGateway(String serial, Long uid){
         //TODO
         return null;
     }
 
-    public Collection<GatewayEntity> removePeripheralFromGateway(String serial, Long uid){
+    public List<GatewayEntity> removePeripheralFromGateway(String serial, Long uid){
         //TODO
         return null;
     }

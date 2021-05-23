@@ -1,17 +1,21 @@
 package com.test.gateway.entity;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
 @Table(name = "gateway", schema = "public")
+@DynamicInsert
+@DynamicUpdate
 public class GatewayEntity {
     private String serial;
     private String name;
     private String address;
 
     private Collection<PeripheralEntity> peripherals;
-
 
     @Id
     @Column(name = "serial", nullable = false)

@@ -3,6 +3,7 @@ package com.test.gateway.unitttests;
 import com.test.gateway.entity.GatewayEntity;
 import com.test.gateway.exception.EntityAlreadyExistsException;
 import com.test.gateway.request.CreateGatewayRequest;
+import com.test.gateway.request.UpdateGatewayRequest;
 import com.test.gateway.service.GatewayService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +117,37 @@ public class GatewayUnitTests {
             String expectedMessage = "Gateway with serial";
             String actualMessage = exception.getMessage();
             assertThat(actualMessage).contains(expectedMessage);
+        }
+    }
+
+    @Test
+    @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_updateGateway__then_expect_EntityNotFoundException() {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = "DONT EXISTS" + i;
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+                this.gatewayService.updateGateway(serial, new UpdateGatewayRequest());
+            });
+            String expectedMessage = "Gateway";
+            String actualMessage = exception.getMessage();
+            assertThat(actualMessage).isEqualTo(expectedMessage);
+        }
+    }
+
+    @Test
+    @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_updateGateway__then_expect_gateway_updated() {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = i + "ABC";
+            String address = "1.1.1." + i;
+            String name = "Gateway" + i+" UPDATED";
+            GatewayEntity gateway = this.gatewayService.updateGateway(serial, new UpdateGatewayRequest(name, address));
+            assertThat(gateway).isNotNull();
+            assertThat(gateway.getSerial()).isEqualTo(serial);
+            assertThat(gateway.getAddress()).isEqualTo(address);
+            assertThat(gateway.getName()).isEqualTo(name);
         }
     }
 

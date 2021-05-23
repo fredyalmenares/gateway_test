@@ -21,6 +21,11 @@ public class UpdateGatewayRequest {
     public UpdateGatewayRequest() {
     }
 
+    public UpdateGatewayRequest(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
     public String getName() {
         return name;
     }

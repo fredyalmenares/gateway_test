@@ -2,12 +2,16 @@ package com.test.gateway.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "peripheral", schema = "public")
+@DynamicInsert
+@DynamicUpdate
 public class PeripheralEntity {
     private Long uid;
     private String vendor;
@@ -15,7 +19,6 @@ public class PeripheralEntity {
     private String status;
 
     private GatewayEntity gateway;
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

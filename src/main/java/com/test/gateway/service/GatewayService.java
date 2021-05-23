@@ -44,9 +44,12 @@ public class GatewayService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public GatewayEntity updateGateway(String serial, UpdateGatewayRequest updateGatewayRequest) {
-        //TODO
-        return null;
+        GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
+        gatewayEntity.setName(updateGatewayRequest.getName());
+        gatewayEntity.setAddress(updateGatewayRequest.getAddress());
+        return this.gatewayRepository.saveAndFlush(gatewayEntity);
     }
 
     public boolean deleteGateway(String serial) {

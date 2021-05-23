@@ -1,5 +1,8 @@
 package com.test.gateway.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -37,6 +40,7 @@ public class PeripheralEntity {
 
     @Basic
     @Column(name = "created_at", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     public Timestamp getCreatedAt() {
         return createdAt;
     }
@@ -56,7 +60,8 @@ public class PeripheralEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name="gateway_serial" , nullable=false)
+    @JoinColumn(name="gateway_serial" , nullable=true, unique = false)
+    @JsonIgnore
     public GatewayEntity getGateway() {
         return gateway;
     }

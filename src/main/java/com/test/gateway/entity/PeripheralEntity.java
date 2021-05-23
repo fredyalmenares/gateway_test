@@ -6,13 +6,15 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "peripheral", schema = "public")
 @DynamicInsert
 @DynamicUpdate
-public class PeripheralEntity {
+public class PeripheralEntity  implements Serializable {
     private Long uid;
     private String vendor;
     private Timestamp createdAt;
@@ -42,7 +44,7 @@ public class PeripheralEntity {
     }
 
     @Basic
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     public Timestamp getCreatedAt() {
         return createdAt;
@@ -62,7 +64,7 @@ public class PeripheralEntity {
         this.status = status;
     }
 
-    @ManyToOne
+    @ManyToOne(optional = true)
     @JoinColumn(name="gateway_serial" , nullable=true, unique = false)
     @JsonIgnore
     public GatewayEntity getGateway() {
@@ -71,5 +73,10 @@ public class PeripheralEntity {
 
     public void setGateway(GatewayEntity gateway) {
         this.gateway = gateway;
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        setCreatedAt(Timestamp.from(Instant.now()));
     }
 }

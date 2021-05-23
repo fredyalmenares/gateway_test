@@ -1,6 +1,6 @@
 package com.test.gateway.exception;
 
-public class EntityAlreadyExistsException extends Exception {
+public class EntityAlreadyExistsException extends RuntimeException {
 
     private final String entity;
     private final String id;

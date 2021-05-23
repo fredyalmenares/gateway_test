@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ public class GatewayUnitTests {
     GatewayService gatewayService;
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findGatewayBySerialOrFail__then_return_gateway() {
@@ -43,6 +45,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findGatewayBySerialOrFail__then_expect_EntityNotFoundException() {
@@ -58,6 +61,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_findAll__then_return_gateway_collection() {
@@ -83,6 +87,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_createGateway__then_return_created_gateway() {
@@ -104,6 +109,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_createGateway__then_expect_EntityAlreadyExistsException() {
@@ -121,6 +127,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_updateGateway__then_expect_EntityNotFoundException() {
@@ -136,6 +143,7 @@ public class GatewayUnitTests {
     }
 
     @Test
+    @Transactional
     @Sql(scripts = {"/removeAll.sql", "/createGateways.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void when_call_updateGateway__then_expect_gateway_updated() {
@@ -148,6 +156,59 @@ public class GatewayUnitTests {
             assertThat(gateway.getSerial()).isEqualTo(serial);
             assertThat(gateway.getAddress()).isEqualTo(address);
             assertThat(gateway.getName()).isEqualTo(name);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/removeAll.sql", "/createGateways2.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_deleteGateway__then_expect_EntityNotFoundException() {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = "DONT EXISTS" + i;
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+                this.gatewayService.deleteGateway(serial);
+            });
+            String expectedMessage = "Gateway";
+            String actualMessage = exception.getMessage();
+            assertThat(actualMessage).isEqualTo(expectedMessage);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/removeAll.sql", "/createGatewaysWithPeripheralsFull.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_deleteGateway__then_expect_GatewayHasPeripheralException() {
+        for (int i = 1; i <= GATEWAY_COUNT; i++) {
+            String serial = "DONT EXISTS" + i;
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+                this.gatewayService.deleteGateway(serial);
+            });
+            String expectedMessage = "Gateway";
+            String actualMessage = exception.getMessage();
+            assertThat(actualMessage).isEqualTo(expectedMessage);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/removeAll.sql", "/createGateways2.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/removeAll.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void when_call_deleteGateway__then_expect_gateway_deleted() {
+        for (int i = 10; i <= 19; i++) {
+            String serial = i + "ABC";
+            GatewayEntity gateway = this.gatewayService.findGatewayBySerialOrFail(serial);
+            assertThat(gateway).isNotNull();
+            this.gatewayService.deleteGateway(gateway.getSerial());
+
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+                this.gatewayService.findGatewayBySerialOrFail(serial);
+            });
+            String expectedMessage = "Gateway";
+            String actualMessage = exception.getMessage();
+            assertThat(actualMessage).isEqualTo(expectedMessage);
+
         }
     }
 

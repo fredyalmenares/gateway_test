@@ -2,9 +2,11 @@ package com.test.gateway.service;
 
 import com.test.gateway.entity.GatewayEntity;
 import com.test.gateway.exception.EntityAlreadyExistsException;
+import com.test.gateway.exception.GatewayHasPeripheralException;
 import com.test.gateway.repository.GatewayRepository;
 import com.test.gateway.request.CreateGatewayRequest;
 import com.test.gateway.request.UpdateGatewayRequest;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +19,7 @@ public class GatewayService {
     private final GatewayRepository gatewayRepository;
     private final PeripheralService peripheralService;
 
-    public GatewayService(GatewayRepository gatewayRepository, PeripheralService peripheralService) {
+    public GatewayService(GatewayRepository gatewayRepository, @Lazy PeripheralService peripheralService) {
         this.gatewayRepository = gatewayRepository;
         this.peripheralService = peripheralService;
     }
@@ -31,7 +33,7 @@ public class GatewayService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public GatewayEntity createGateway(CreateGatewayRequest createGatewayRequest) throws EntityAlreadyExistsException {
+    public GatewayEntity createGateway(CreateGatewayRequest createGatewayRequest) {
         try {
             this.findGatewayBySerialOrFail(createGatewayRequest.getSerial());
             throw new EntityAlreadyExistsException("Gateway", "serial", createGatewayRequest.getSerial());
@@ -52,9 +54,13 @@ public class GatewayService {
         return this.gatewayRepository.saveAndFlush(gatewayEntity);
     }
 
-    public boolean deleteGateway(String serial) {
-        //TODO
-        return true;
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteGateway(String serial) {
+        GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
+        if(gatewayEntity.getPeripherals().size() > 0){
+            throw new GatewayHasPeripheralException(gatewayEntity.getSerial());
+        }
+        this.gatewayRepository.deleteById(serial);
     }
 
     public List<GatewayEntity> addPeripheralToGateway(String serial, Long uid) {

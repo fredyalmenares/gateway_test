@@ -2,6 +2,7 @@ package com.test.gateway.config;
 
 import com.test.gateway.GatewayApplication;
 import com.test.gateway.exception.EntityAlreadyExistsException;
+import com.test.gateway.exception.GatewayHasPeripheralException;
 import com.test.gateway.response.BadRequestResponse;
 import com.test.gateway.response.NotFoundResponse;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +40,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {EntityAlreadyExistsException.class})
     protected ResponseEntity<BadRequestResponse> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
-        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage())), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage())), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(value = {GatewayHasPeripheralException.class})
+    protected ResponseEntity<BadRequestResponse> handleGatewayHasPeripheralException(GatewayHasPeripheralException e) {
+        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage()+"It cannot be deleted, first you must unlink all peripherals from the Gateway.")), HttpStatus.BAD_REQUEST);
+    }
+
+
 }

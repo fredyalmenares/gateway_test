@@ -1,0 +1,12 @@
+FROM maven:3.6.3-jdk-11 as maven_build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+ADD entrypoint-test.sh /
+RUN chmod +x /entrypoint-test.sh && \
+    apt-get update && \
+    apt-get install -y curl && \
+    cd / && \
+    curl -s -f -L -o await https://github.com/betalo-sweden/await/releases/download/v0.4.0/await-linux-amd64 && \
+    chmod +x /await
+ENTRYPOINT ["/entrypoint-test.sh"]

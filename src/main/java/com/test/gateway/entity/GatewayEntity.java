@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
-@Table(name = "gateway", schema = "public", catalog = "gateway")
+@Table(name = "gateway", schema = "public")
 public class GatewayEntity {
     private String serial;
     private String name;

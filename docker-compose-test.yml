@@ -1,23 +1,24 @@
 version: "3.7"
 services:
-  mysqldb:
+  mysqldb-test:
     image: mysql:5.7
-    container_name: gateway_db
+    container_name: gateway_db_test
     restart: always
     ports:
-      - '3309:3306'
+      - '3310:3306'
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_TEST_DATABASE}
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-  api:
-    build: .
+  api-test:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
     container_name: gateway_api_test
-    restart: always
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
+      - ${SERVER_TEST_PORT}:${SERVER_TEST_PORT}
     env_file:
       - .env
     depends_on:
-      - mysqldb
+      - mysqldb-test

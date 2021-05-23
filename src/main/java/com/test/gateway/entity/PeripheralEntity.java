@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "peripheral", schema = "public", catalog = "gateway")
+@Table(name = "peripheral", schema = "public")
 public class PeripheralEntity {
     private Long uid;
     private String vendor;

@@ -16,7 +16,7 @@ you can optionally use the command `docker-compose -f docker-compose-db.yml up -
 to set up the two databases for you.
    
 
-3. The next step is to run the following commands in a bash terminal:
+3. Next run the following commands in a bash terminal:
     ```bash 
     source ./load_env.sh
     mvn clean install -Dmaven.test.skip
@@ -63,7 +63,7 @@ http://localhost:<SERVER_PORT>/v1/api/swagger-ui/ (the final / is important)
    lighter. Once complete, the service can be found at 
    http://localhost:<SERVER_PORT>/v1/api/swagger-ui/
    
-4. For stopping the service type docker-compose down -v in the root folder 
+4. For stopping the service, type docker-compose down -v in the root folder 
    (alongside docker-compose.yml file)
 
 ### Running the tests with docker-compose

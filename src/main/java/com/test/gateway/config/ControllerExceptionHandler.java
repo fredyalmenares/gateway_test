@@ -42,12 +42,12 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {GatewayHasPeripheralException.class})
     protected ResponseEntity<BadRequestResponse> handleGatewayHasPeripheralException(GatewayHasPeripheralException e) {
-        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage()+"It cannot be deleted, first you must unlink all peripherals from the Gateway.")), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage()+" Please unlink all peripherals from the gateway before deleting it.")), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {GatewayMaxPeripheralsException.class, GatewayDoesNotHasPeripheralException.class, EntityAlreadyExistsException.class})
-    protected ResponseEntity<BadRequestResponse> handleGatewayException(GatewayMaxPeripheralsException e) {
-        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(e.getMessage())), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<BadRequestResponse> handleGatewayException(RuntimeException re) {
+        return new ResponseEntity<>(new BadRequestResponse(Collections.singletonList(re.getMessage())), HttpStatus.BAD_REQUEST);
     }
 
 

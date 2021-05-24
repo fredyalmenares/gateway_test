@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
@@ -21,10 +22,12 @@ public class GatewayService {
 
     private final GatewayRepository gatewayRepository;
     private final PeripheralService peripheralService;
+    private final EntityManager entityManager;
 
-    public GatewayService(GatewayRepository gatewayRepository, @Lazy PeripheralService peripheralService) {
+    public GatewayService(GatewayRepository gatewayRepository, @Lazy PeripheralService peripheralService, EntityManager entityManager) {
         this.gatewayRepository = gatewayRepository;
         this.peripheralService = peripheralService;
+        this.entityManager = entityManager;
     }
 
     public GatewayEntity findGatewayBySerialOrFail(String serial) {
@@ -88,8 +91,9 @@ public class GatewayService {
                 .filter(peripheralEntity1 -> peripheralEntity1.getUid().equals(uid))
                 .findFirst().orElseThrow(() -> new GatewayDoesNotHasPeripheralException(serial, uid));
         peripheralEntity.setGateway(null);
-        this.peripheralService.savePeripheralEntity(peripheralEntity);
-        return this.gatewayRepository.saveAndFlush(gatewayEntity);
+        GatewayEntity returnValue = this.gatewayRepository.saveAndFlush(gatewayEntity);
+        this.entityManager.refresh(returnValue);
+        return returnValue;
     }
 
 

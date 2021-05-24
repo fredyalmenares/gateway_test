@@ -29,7 +29,7 @@ public class GatewayController {
     @ApiOperation(value = "Get all stored gateways.", tags = {"Gateway"})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewayCollectionResponse> getGateways() {
-        GatewayCollectionResponse response = new GatewayCollectionResponse();
+        GatewayCollectionResponse response = new GatewayCollectionResponse(this.gatewayService.findAll());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -51,7 +51,7 @@ public class GatewayController {
                     }))})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GatewaySingleResponse> postGateways(@Valid @RequestBody() CreateGatewayRequest createGatewayRequest) {
-        GatewaySingleResponse response = new GatewaySingleResponse();
+        GatewaySingleResponse response = new GatewaySingleResponse(this.gatewayService.createGateway(createGatewayRequest));
         response.setMessage("Gateway created successfully.");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -65,7 +65,7 @@ public class GatewayController {
                     }))})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewaySingleResponse> updateGateway(@PathVariable(name = "serial") String serial, @Valid @RequestBody() UpdateGatewayRequest updateGatewayRequest) {
-        GatewaySingleResponse response = new GatewaySingleResponse();
+        GatewaySingleResponse response = new GatewaySingleResponse(this.gatewayService.updateGateway(serial, updateGatewayRequest));
         response.setMessage("Gateway updated successfully.");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -79,12 +79,13 @@ public class GatewayController {
                     }))})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewaySingleResponse> deleteGateway(@PathVariable(name = "serial") String serial) {
+        this.gatewayService.deleteGateway(serial);
         GatewaySingleResponse response = new GatewaySingleResponse();
         response.setMessage("Gateway deleted successfully.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/addPeripheral/{serial}/{uid}")
+    @PutMapping("/{serial}/addPeripheral/{uid}")
     @ApiOperation(value = "Add a peripheral to a gateway.", tags = {"Gateway"})
     @ApiResponses(
             value = {
@@ -98,7 +99,7 @@ public class GatewayController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/removePeripheral/{serial}/{uid}")
+    @PutMapping("/{serial}/removePeripheral/{uid}")
     @ApiOperation(value = "Remove a peripheral from a gateway.", tags = {"Gateway"})
     @ApiResponses(
             value = {
@@ -107,7 +108,7 @@ public class GatewayController {
                     }))})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<GatewaySingleResponse> removePeripheral(@PathVariable(name = "serial") String serial, @PathVariable(name = "uid") Long uid) {
-        GatewaySingleResponse response = new GatewaySingleResponse();
+        GatewaySingleResponse response = new GatewaySingleResponse(this.gatewayService.removePeripheralFromGateway(serial, uid));
         response.setMessage("Peripheral removed successfully.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

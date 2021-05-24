@@ -16,10 +16,6 @@ public class UpdatePeripheralRequest {
     @Pattern(regexp = "^online|offline$", message="The status must be online or offline")
     private String status;
 
-    @ApiModelProperty(example = "123LR90Y")
-    private String gatewaySerial;
-
-
     public UpdatePeripheralRequest() {
     }
 
@@ -44,11 +40,4 @@ public class UpdatePeripheralRequest {
         this.status = status;
     }
 
-    public String getGatewaySerial() {
-        return gatewaySerial;
-    }
-
-    public void setGatewaySerial(String gatewaySerial) {
-        this.gatewaySerial = gatewaySerial;
-    }
 }

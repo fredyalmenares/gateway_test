@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +30,10 @@ public class GatewayUnitTests {
 
     @Autowired
     GatewayService gatewayService;
+
+    @Autowired
+    EntityManager entityManager;
+
 
     @Test
     @Transactional
@@ -308,22 +313,14 @@ public class GatewayUnitTests {
                                 .count())
                         .isEqualTo(1);
                 this.gatewayService.removePeripheralFromGateway(serial, uid);
-
-                this.gatewayService
-                        .findGatewayBySerialOrFail(serial)
+                GatewayEntity expectedGateway = this.gatewayService
+                        .findGatewayBySerialOrFail(serial);
+                this.entityManager.refresh(expectedGateway);
+                assertThat(expectedGateway
                         .getPeripherals()
-                        .forEach(peripheral -> GatewayApplication.logger.warn(peripheral.toString()));
-
-                assertThat(
-                        this.gatewayService
-                                .findGatewayBySerialOrFail(serial)
-                                .getPeripherals()
-                                .stream()
-                                .filter(peripheralEntity ->
-                                        peripheralEntity.getGateway() != null &&
-                                                peripheralEntity.getUid().equals(uid)
-                                )
-                                .count())
+                        .stream()
+                        .filter(peripheralEntity -> peripheralEntity.getUid().equals(uid))
+                        .count())
                         .isEqualTo(0);
             }
         }

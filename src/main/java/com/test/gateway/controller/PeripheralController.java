@@ -4,6 +4,7 @@ import com.test.gateway.request.CreatePeripheralRequest;
 import com.test.gateway.request.UpdatePeripheralRequest;
 import com.test.gateway.response.PeripheralCollectionResponse;
 import com.test.gateway.response.PeripheralSingleResponse;
+import com.test.gateway.service.PeripheralService;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +19,25 @@ import javax.validation.Valid;
 @Validated
 public class PeripheralController {
 
+    private PeripheralService peripheralService;
+
+    public PeripheralController(PeripheralService peripheralService) {
+        this.peripheralService = peripheralService;
+    }
+
     @GetMapping
     @ApiOperation(value = "Get all stored peripherals.", tags = {"Peripheral"})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PeripheralCollectionResponse> getPeripherals() {
-        PeripheralCollectionResponse response = new PeripheralCollectionResponse();
+        PeripheralCollectionResponse response = new PeripheralCollectionResponse(this.peripheralService.findAll());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{uid}")
     @ApiOperation(value = "Get one peripheral by its uid.", tags = {"Peripheral"})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PeripheralSingleResponse> getPeripheralByUid(@PathVariable(name = "uid") String uid) {
-        PeripheralSingleResponse response = new PeripheralSingleResponse();
+    public ResponseEntity<PeripheralSingleResponse> getPeripheralByUid(@PathVariable(name = "uid") Long uid) {
+        PeripheralSingleResponse response = new PeripheralSingleResponse(this.peripheralService.findPeripheralByUidOrFail(uid));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -44,7 +51,7 @@ public class PeripheralController {
                     }))})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PeripheralSingleResponse> postPeripherals(@Valid @RequestBody() CreatePeripheralRequest createPeripheralRequest) {
-        PeripheralSingleResponse response = new PeripheralSingleResponse();
+        PeripheralSingleResponse response = new PeripheralSingleResponse(this.peripheralService.createPeripheral(createPeripheralRequest));
         response.setMessage("Peripheral created successfully.");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -57,8 +64,8 @@ public class PeripheralController {
                             @ExampleProperty(mediaType = "*/*", value = "{\"success\": false, \"message\":\"Bad Request\", \"code\": 400, \"errors\": [\"error1\", \"error2\"]}")
                     }))})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PeripheralSingleResponse> updatePeripheral(@PathVariable(name = "uid") String uid, @Valid @RequestBody() UpdatePeripheralRequest updatePeripheralRequest) {
-        PeripheralSingleResponse response = new PeripheralSingleResponse();
+    public ResponseEntity<PeripheralSingleResponse> updatePeripheral(@PathVariable(name = "uid") Long uid, @Valid @RequestBody() UpdatePeripheralRequest updatePeripheralRequest) {
+        PeripheralSingleResponse response = new PeripheralSingleResponse(this.peripheralService.updatePeripheral(uid, updatePeripheralRequest));
         response.setMessage("Peripheral updated successfully.");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -71,7 +78,8 @@ public class PeripheralController {
                             @ExampleProperty(mediaType = "*/*", value = "{\"success\": false, \"message\":\"Not Found\", \"code\": 404}")
                     }))})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PeripheralSingleResponse> deletePeripheral(@PathVariable(name = "uid") String uid) {
+    public ResponseEntity<PeripheralSingleResponse> deletePeripheral(@PathVariable(name = "uid") Long uid) {
+        this.peripheralService.deletePeripheral(uid);
         PeripheralSingleResponse response = new PeripheralSingleResponse();
         response.setMessage("Peripheral deleted successfully.");
         return new ResponseEntity<>(response, HttpStatus.OK);

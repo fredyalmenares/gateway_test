@@ -60,7 +60,7 @@ http://localhost:<SERVER_PORT>/v1/api/swagger-ui/ (the final / is important)
 
 3. The docker-compose can take a while to finish its execution, 
    since it is a multistage build designed to make the final container 
-   lighter. Once complete, the service can be found at 
+   lighter. Once complete, the service swagger documentation can be found at 
    http://localhost:<SERVER_PORT>/v1/api/swagger-ui/
    
 4. For stopping the service, type docker-compose down -v in the root folder 

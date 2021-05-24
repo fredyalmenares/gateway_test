@@ -11,13 +11,14 @@ services:
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-  api:
-    build: .
-    container_name: gateway_api
+  mysqldb-test:
+    image: mysql:5.7
+    container_name: gateway_db_test
     restart: always
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
-    env_file:
-      - .env
-    depends_on:
-      - mysqldb
+      - '3310:3306'
+    environment:
+      MYSQL_DATABASE: ${MYSQL_TEST_DATABASE}
+      MYSQL_USER: ${MYSQL_TEST_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_TEST_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_TEST_PASSWORD}

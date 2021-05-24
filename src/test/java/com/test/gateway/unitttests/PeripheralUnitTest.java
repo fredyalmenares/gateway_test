@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest()
-public class PeripheralUnitTests {
+public class PeripheralUnitTest {
     int PERIPHERAL_COUNT = 10;
 
     @Autowired

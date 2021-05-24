@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest()
-public class GatewayUnitTests {
+public class GatewayUnitTest {
     int GATEWAY_COUNT = 5;
 
     @Autowired

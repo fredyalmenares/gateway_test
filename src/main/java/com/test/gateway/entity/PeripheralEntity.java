@@ -63,7 +63,7 @@ public class PeripheralEntity  implements Serializable {
         this.status = status;
     }
 
-    @ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="gateway_serial" )
     @JsonIgnore
     public GatewayEntity getGateway() {
@@ -86,7 +86,7 @@ public class PeripheralEntity  implements Serializable {
                 ", vendor='" + vendor + '\'' +
                 ", createdAt=" + createdAt +
                 ", status='" + status + '\'' +
-                ", gateway_serial='" + gateway.getSerial() + '\'' +
+                ", gateway_serial='" + (gateway != null ? gateway.getSerial() : "null") + '\'' +
                 '}';
     }
 }

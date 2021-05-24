@@ -14,13 +14,15 @@ public class CreatePeripheralRequest {
     private String vendor;
 
     @ApiModelProperty(example = "online")
-    @Pattern(regexp = "^online|offline$", message="The status must be online or offline")
+    @Pattern(regexp = "^online|offline$", message = "The status must be online or offline")
     private String status;
 
-    @ApiModelProperty(example = "123LR90Y")
-    private String gatewaySerial;
-
     public CreatePeripheralRequest() {
+    }
+
+    public CreatePeripheralRequest(String vendor, String status) {
+        this.vendor = vendor;
+        this.status = status;
     }
 
     public String getVendor() {
@@ -37,13 +39,5 @@ public class CreatePeripheralRequest {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getGatewaySerial() {
-        return gatewaySerial;
-    }
-
-    public void setGatewaySerial(String gatewaySerial) {
-        this.gatewaySerial = gatewaySerial;
     }
 }

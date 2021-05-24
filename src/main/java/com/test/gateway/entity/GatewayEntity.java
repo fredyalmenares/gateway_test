@@ -48,7 +48,7 @@ public class GatewayEntity {
         this.address = address;
     }
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="gateway", targetEntity = PeripheralEntity.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="gateway", targetEntity = PeripheralEntity.class)
     public Set<PeripheralEntity> getPeripherals() {
         return peripherals;
     }

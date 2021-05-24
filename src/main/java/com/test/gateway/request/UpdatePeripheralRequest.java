@@ -23,6 +23,11 @@ public class UpdatePeripheralRequest {
     public UpdatePeripheralRequest() {
     }
 
+    public UpdatePeripheralRequest(String vendor, String status) {
+        this.vendor = vendor;
+        this.status = status;
+    }
+
     public String getVendor() {
         return vendor;
     }

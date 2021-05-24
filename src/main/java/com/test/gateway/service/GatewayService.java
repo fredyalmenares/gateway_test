@@ -66,8 +66,9 @@ public class GatewayService {
         this.gatewayRepository.deleteById(serial);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public GatewayEntity addPeripheralToGateway(String serial, Long uid) {
-        PeripheralEntity peripheralEntity = this.peripheralService.findPeripheralBySerialOrFail(uid);
+        PeripheralEntity peripheralEntity = this.peripheralService.findPeripheralByUidOrFail(uid);
         GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
         if (gatewayEntity.getPeripherals().size() >= 10) {
             throw new GatewayMaxPeripheralsException(gatewayEntity.getSerial());
@@ -78,6 +79,7 @@ public class GatewayService {
         return this.gatewayRepository.saveAndFlush(gatewayEntity);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public GatewayEntity removePeripheralFromGateway(String serial, Long uid) {
         GatewayEntity gatewayEntity = this.findGatewayBySerialOrFail(serial);
         PeripheralEntity peripheralEntity = gatewayEntity

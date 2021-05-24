@@ -298,6 +298,7 @@ public class GatewayUnitTests {
             final String serial = i + "ABC";
             for (int j = 1; j <= 10; j++) {
                 final Long uid = (long) j + ((i - 1) * 10L);
+                GatewayApplication.logger.warn("SERIAL: " + serial + " UID: " + uid);
                 assertThat(
                         this.gatewayService
                                 .findGatewayBySerialOrFail(serial)
@@ -307,12 +308,21 @@ public class GatewayUnitTests {
                                 .count())
                         .isEqualTo(1);
                 this.gatewayService.removePeripheralFromGateway(serial, uid);
+
+                this.gatewayService
+                        .findGatewayBySerialOrFail(serial)
+                        .getPeripherals()
+                        .forEach(peripheral -> GatewayApplication.logger.warn(peripheral.toString()));
+
                 assertThat(
                         this.gatewayService
                                 .findGatewayBySerialOrFail(serial)
                                 .getPeripherals()
                                 .stream()
-                                .filter(peripheralEntity -> peripheralEntity.getUid().equals(uid))
+                                .filter(peripheralEntity ->
+                                        peripheralEntity.getGateway() != null &&
+                                                peripheralEntity.getUid().equals(uid)
+                                )
                                 .count())
                         .isEqualTo(0);
             }
